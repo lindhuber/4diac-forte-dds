@@ -15,28 +15,11 @@
 
 For more detailed information on the build process, please refer to the [4diac FORTE repository](https://github.com/eclipse-4diac/4diac-forte).
 
-## DDS Layer with FastDDS already installed
+## Dependencies
 
-If you have FastDDS already installed on your system, CMake will recognize the library and link it to the DDS layer. No git submodules are required in this case.
+The DDS layer requires the following libraries to be installed on the system.
 
-## DDS Layer Setup
-This repository contains submodules. To clone it, use the following command:
-```bash
-git clone --recurse-submodules https://github.com/lindhuber/4diac-forte-dds.git
-```
-If you have already cloned the repository, you can initialize the submodules with the following command:
-```bash
-git submodule update --init --recursive
-```
-
-To build the DDS layer, execute the following scripts depending on your operating system:
-```bash
-./setup_posix.sh	// linux
-.\setup_win.ps1		// windows
-```
-These scripts build the FastDDS library that was cloned as a submodule.
-
-The layer itself is built as part of the FORTE build process.
+- [FastDDS](https://github.com/eProsima/Fast-DDS)
 
 
 
