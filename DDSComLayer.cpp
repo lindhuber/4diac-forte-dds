@@ -32,9 +32,11 @@ DDSComLayer::DDSComLayer(CComLayer* paUpperLayer, CBaseCommFB * pFB)
 
 DDSComLayer::~DDSComLayer() = default;
 
-EComResponse DDSComLayer::openConnection(char* paLayerParameter) {
+EComResponse DDSComLayer::openConnection(char* paLayerParameter) 
+{
     EComResponse eRetVal = e_InitInvalidId;
-    if (getBottomLayer() != nullptr || getTopLayer() != nullptr) {
+    if (getBottomLayer() != nullptr || getTopLayer() != nullptr) 
+    {
         return eRetVal;
     }
 
@@ -42,34 +44,43 @@ EComResponse DDSComLayer::openConnection(char* paLayerParameter) {
     forte::dds::Factory::parseConfig(config, paLayerParameter);
     config.recvCallback = std::bind(&DDSComLayer::recvData, this, std::placeholders::_1, std::placeholders::_2);
 
-    switch(getCommFB()->getComServiceType()) {
-        case e_Publisher: {
+    switch(getCommFB()->getComServiceType()) 
+    {
+        case e_Publisher: 
+        {
             mp_pub = new forte::dds::Publisher(config);
-            if (mp_pub->init(getCommFB()->getSDs(), getCommFB()->getNumSD())) {
+            if (mp_pub->init(getCommFB()->getSDs(), getCommFB()->getNumSD())) 
+            {
                 getExtEvHandler<DDSHandler>().registerLayer(this);
                 eRetVal = e_InitOk;
             }
             break;
         }
-        case e_Subscriber: {
+        case e_Subscriber: 
+        {
             mp_sub = new forte::dds::Subscriber(config);
-            if (mp_sub->init(getCommFB()->getRDs(), getCommFB()->getNumRD())) {
+            if (mp_sub->init(getCommFB()->getRDs(), getCommFB()->getNumRD())) 
+            {
                 getExtEvHandler<DDSHandler>().registerLayer(this);
                 eRetVal = e_InitOk;
             }
             break;
         }
-        case e_Server: {
+        case e_Server: 
+        {
             mp_server = new forte::dds::Server(config);
-            if (mp_server->init(getCommFB()->getSDs(), getCommFB()->getNumSD(), getCommFB()->getRDs(), getCommFB()->getNumRD())) {
+            if (mp_server->init(getCommFB()->getSDs(), getCommFB()->getNumSD(), getCommFB()->getRDs(), getCommFB()->getNumRD())) 
+            {
                 getExtEvHandler<DDSHandler>().registerLayer(this);
                 eRetVal = e_InitOk;
             }
             break;
         }
-        case e_Client: {
+        case e_Client: 
+        {
             mp_client = new forte::dds::Client(config);
-            if (mp_client->init(getCommFB()->getSDs(), getCommFB()->getNumSD(), getCommFB()->getRDs(), getCommFB()->getNumRD())) {
+            if (mp_client->init(getCommFB()->getSDs(), getCommFB()->getNumSD(), getCommFB()->getRDs(), getCommFB()->getNumRD())) 
+            {
                 getExtEvHandler<DDSHandler>().registerLayer(this);
                 eRetVal = e_InitOk;
             }
@@ -82,20 +93,25 @@ EComResponse DDSComLayer::openConnection(char* paLayerParameter) {
     return eRetVal;
 }
 
-void DDSComLayer::closeConnection() {
+void DDSComLayer::closeConnection() 
+{
     // nothing to do for now
 }
 
-EComResponse DDSComLayer::sendData(void* paData, unsigned int paSize) {
-    DEVLOG_DEBUG("dds layer send \n");
-    switch(getCommFB()->getComServiceType()) {
-        case e_Publisher: {
+EComResponse DDSComLayer::sendData(void* paData, unsigned int paSize) 
+{
+    switch(getCommFB()->getComServiceType()) 
+    {
+        case e_Publisher: 
+        {
             return mp_pub->publish(getCommFB()->getSDs(), getCommFB()->getNumSD()) ? e_ProcessDataOk : e_ProcessDataSendFailed;
         }
-        case e_Server: {
+        case e_Server: 
+        {
             return mp_server->publish(getCommFB()->getSDs(), getCommFB()->getNumSD()) ? e_ProcessDataOk : e_ProcessDataSendFailed;
         }
-        case e_Client: {
+        case e_Client: 
+        {
             return mp_client->publish(getCommFB()->getSDs(), getCommFB()->getNumSD()) ? e_ProcessDataOk : e_ProcessDataSendFailed;
         }
         default:
@@ -103,25 +119,29 @@ EComResponse DDSComLayer::sendData(void* paData, unsigned int paSize) {
     }
 }
 
-EComResponse DDSComLayer::recvData(const void* paData,  unsigned int paSize) {
-    DEVLOG_DEBUG("dds layer receive \n");
+EComResponse DDSComLayer::recvData(const void* paData,  unsigned int paSize) 
+{
     getCommFB()->interruptCommFB(this);
     getExtEvHandler<DDSHandler>().startNewEventChain(this);
     return e_ProcessDataOk;
 }
 
-EComResponse DDSComLayer::processInterrupt() {
-    DEVLOG_DEBUG("dds layer interrupt \n");
-    switch(getCommFB()->getComServiceType()) {
-        case e_Subscriber: {
+EComResponse DDSComLayer::processInterrupt() 
+{
+    switch(getCommFB()->getComServiceType()) 
+    {
+        case e_Subscriber: 
+        {
             mp_sub->apply(getCommFB()->getRDs(), getCommFB()->getNumRD());
             return mInterruptResp;
         }
-        case e_Server: {
+        case e_Server: 
+        {
             mp_server->apply(getCommFB()->getRDs(), getCommFB()->getNumRD());
             return mInterruptResp;
         }
-        case e_Client: {
+        case e_Client: 
+        {
             mp_client->apply(getCommFB()->getRDs(), getCommFB()->getNumRD());
             return mInterruptResp;
         }

@@ -35,7 +35,8 @@ using namespace eprosima::fastrtps::types;
 
 namespace forte::dds
 {
-    class Factory {
+    class Factory 
+    {
     public:
         static DomainParticipant *create_domain_participant();
         static Publisher *create_publisher(DomainParticipant* participant, EntityConfig& config);
@@ -64,7 +65,8 @@ namespace forte::dds
         static DynamicType_ptr createMemberType(CIEC_ANY::EDataTypeID typeID);
 
         static const size_t PARAMS_NUM = 2;
-        enum Parameters {
+        enum Parameters 
+        {
             TopicName,
             ProfileName
         };

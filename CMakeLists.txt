@@ -11,33 +11,36 @@
 #############################################################################
 
 forte_add_network_layer(DDS OFF "dds" DDSComLayer DDSComLayer "Enable DDS Com Layer")
-
 forte_add_include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 if(FORTE_COM_DDS)
+    cmake_policy(SET CMP0057 NEW)
+
     forte_add_handler(DDSHandler DDSHandler)
     forte_add_sourcefile_hcpp(DDSComLayer DDSHandler)
 
-    if(NOT fastcdr_FOUND)
-      find_package(fastcdr REQUIRED)
+    if(NOT fastdds_FOUND)
+      find_package(fastdds REQUIRED)
     endif()
 
-    if(NOT fastrtps_FOUND)
-      find_package(fastrtps REQUIRED)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+        # MSVC (RTTI is enabled by default)
+        forte_add_definition("/EHsc") # Equivalent to exceptions flag
+    else()
+        # GCC/Clang
+        forte_add_definition("-fexceptions")
+        forte_add_definition("-frtti")
     endif()
 
-    forte_add_definition("-fexceptions")
-    forte_add_definition("-frtti")
+    if(TARGET fastdds)
+        forte_add_include_directories(${fastdds_INCLUDE_DIRS})
+    endif()
 
-    forte_add_include_directories(/usr/local/include/fastcdr)
-    forte_add_include_directories(/usr/local/include/fastrtps)
-
-    forte_add_link_library(fastcdr)
-    forte_add_link_library(fastrtps)
+    forte_add_link_library(fastdds)
 
     forte_add_sourcefile_h(util/EntityConfig.h)
     forte_add_sourcefile_hcpp(util/Factory)
     forte_add_sourcefile_hcpp(base/BasePublisher base/BaseSubscriber)
     forte_add_sourcefile_hcpp(cisfb/Publisher cisfb/Subscriber cisfb/Client cisfb/Server)
-
 endif(FORTE_COM_DDS)
+

@@ -34,25 +34,29 @@ DDSHandler::~DDSHandler()
     disableHandler();
 }
 
-int DDSHandler::registerLayer(DDSComLayer* paLayer) {
+int DDSHandler::registerLayer(DDSComLayer* paLayer) 
+{
     CCriticalRegion section(smDDSMutex);
     m_toAdd.push_back(paLayer);
     enableHandler();
     return 0;
 }
 
-void DDSHandler::unregisterLayer(DDSComLayer *paLayer) {
+void DDSHandler::unregisterLayer(DDSComLayer *paLayer) 
+{
     CCriticalRegion section(smDDSMutex);
     m_toRemove.push_back(paLayer);
 }
 
-void DDSHandler::enableHandler() {
+void DDSHandler::enableHandler() 
+{
     if(!isAlive()){
         start();
     }
 }
 
-void DDSHandler::disableHandler() {
+void DDSHandler::disableHandler() 
+{
     if (isAlive()){
         setAlive(false);
         //resumeSuspend();
@@ -60,15 +64,18 @@ void DDSHandler::disableHandler() {
     }
 }
 
-void DDSHandler::setPriority(int pa_prio) {
+void DDSHandler::setPriority(int pa_prio) 
+{
     // nothing to do here
 }
 
-int DDSHandler::getPriority() const {
+int DDSHandler::getPriority() const 
+{
   return 0;
 }
 
-void DDSHandler::run() {
+void DDSHandler::run() 
+{
     DDSFBContainer::iterator it = mlayers.begin();
     DDSComLayer* layer;
     while (isAlive()) {
@@ -97,7 +104,8 @@ void DDSHandler::run() {
     }
 }
 
-void DDSHandler::addRegisteredLayers() {
+void DDSHandler::addRegisteredLayers() 
+{
     CCriticalRegion section(smDDSMutex);
     DDSFBContainer::iterator it = m_toAdd.begin();
     while(it != m_toAdd.end()){
@@ -107,7 +115,8 @@ void DDSHandler::addRegisteredLayers() {
     m_toAdd.clear();
 }
 
-void DDSHandler::removeDerigesteredLayers() {
+void DDSHandler::removeDerigesteredLayers() 
+{
     CCriticalRegion section(smDDSMutex);
     DDSFBContainer::iterator it_remove = m_toRemove.begin();
     while(it_remove != m_toRemove.end()){
@@ -120,17 +129,20 @@ void DDSHandler::removeDerigesteredLayers() {
     m_toRemove.clear();
 }
 
-void DDSHandler::resumeSuspend() {
+void DDSHandler::resumeSuspend() 
+{
     if(mIsSemaphoreEmpty){
         mStateSemaphore.inc();
         mIsSemaphoreEmpty = false;
     }
 }
 
-void DDSHandler::selfSuspend() {
+void DDSHandler::selfSuspend() 
+{
     mStateSemaphore.waitIndefinitely();
 }
 
-void DDSHandler::startNewEventChain(DDSComLayer* layer) {
+void DDSHandler::startNewEventChain(DDSComLayer* layer) 
+{
     CExternalEventHandler::startNewEventChain(layer->getCommFB());
 }

@@ -26,7 +26,8 @@
 #include "posix/forte_thread.h"
 #include "posix/forte_sem.h"
 
-class DDSHandler : public CExternalEventHandler, public CThread {
+class DDSHandler : public CExternalEventHandler, public CThread 
+{
     DECLARE_HANDLER(DDSHandler)
 public:
     int registerLayer(DDSComLayer* paLayer);

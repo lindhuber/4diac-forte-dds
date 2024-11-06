@@ -70,7 +70,6 @@ BasePublisher::~BasePublisher()
 }
 
 bool BasePublisher::init(DomainParticipant* participant, CIEC_ANY** pins, size_t size) {
-    DEVLOG_DEBUG("init pub \n");
     mp_participant = participant;
 
     mp_publisher = mp_participant->create_publisher(PUBLISHER_QOS_DEFAULT, nullptr);

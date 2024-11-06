@@ -16,14 +16,15 @@
 
 #include "comlayer.h"
 #include "../../core/datatypes/forte_string.h"
-#include "com/dds/cisfb/Publisher.h"
-#include "com/dds/cisfb/Subscriber.h"
-#include "com/dds/cisfb/Client.h"
-#include "com/dds/cisfb/Server.h"
+#include "./cisfb/Publisher.h"
+#include "./cisfb/Subscriber.h"
+#include "./cisfb/Client.h"
+#include "./cisfb/Server.h"
 
 using namespace forte::com_infra;
 
-class DDSComLayer: public forte::com_infra::CComLayer {
+class DDSComLayer: public forte::com_infra::CComLayer 
+{
 public:
 
     DDSComLayer(CComLayer* paUpperLayer, CBaseCommFB * paFB);
