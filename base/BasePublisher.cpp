@@ -111,7 +111,7 @@ void BasePublisher::PubListener::on_publication_matched(
     }
 }
 
-bool BasePublisher::publish(CIEC_ANY** pins, size_t size) {
+bool BasePublisher::publish(CIEC_ANY** pins, size_t size) const {
     if (m_listener.firstConnected || m_listener.n_matched > 0) {
         for (int index = 0; index < size; ++index) {
             setMemberData(m_data, pins[index], index);

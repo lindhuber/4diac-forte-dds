@@ -10,8 +10,7 @@
  * Daniel Lindhuber - initial API and implementation and/or initial documentation
  *******************************************************************************/
 
-#ifndef FORTE_BASESUBSCRIBER_H
-#define FORTE_BASESUBSCRIBER_H
+#pragma once
 
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/domain/DomainParticipantListener.hpp>
@@ -34,26 +33,25 @@
 
 #include "comtypes.h"
 
-#include "util/EntityConfig.h"
+typedef std::function<forte::com_infra::EComResponse(const void*,  unsigned int)> callback_t;
 
 class BaseSubscriber {
 public:
-    BaseSubscriber(EntityConfig config, std::string topic_name)
-            : m_config(config)
-            , m_typename(topic_name)
+    BaseSubscriber(const std::string &topic, const std::string &profile, callback_t recv_callback)
+            : m_profile(profile)
+            , m_typename(topic)
             , mp_participant(nullptr)
             , mp_subscriber(nullptr)
             , mp_topic(nullptr)
             , mp_reader(nullptr)
-            , m_listener(this, config.recvCallback) {}
+            , m_listener(this, recv_callback) {}
     virtual ~BaseSubscriber();
 
     bool init(eprosima::fastdds::dds::DomainParticipant* mp_participant, CIEC_ANY** pins, size_t size);
-    bool apply(CIEC_ANY **pins, unsigned int size);
-
-    EntityConfig m_config;
+    bool apply(CIEC_ANY **pins, unsigned int size) const;
 
     std::string m_typename;
+    std::string m_profile;
 
     eprosima::fastdds::dds::DomainParticipant* mp_participant;
     eprosima::fastdds::dds::Subscriber* mp_subscriber;
@@ -68,18 +66,17 @@ public:
 public:
     class ParticipantListener : public eprosima::fastdds::dds::DomainParticipantListener {
     public:
-        ParticipantListener(BaseSubscriber* sub, std::function<forte::com_infra::EComResponse(const void*, unsigned int)> recvCallback)
+        ParticipantListener(BaseSubscriber* sub, const callback_t &recv_callback)
                 : mp_struct_subscriber(sub)
-                , recvCallback(recvCallback) {}
+                , recv_callback(recv_callback) {}
         ~ParticipantListener() override = default;
 
         void on_data_available(eprosima::fastdds::dds::DataReader* reader) override;
 
         BaseSubscriber* mp_struct_subscriber;
-        std::function<forte::com_infra::EComResponse(const void*,  unsigned int)> recvCallback;
+        callback_t recv_callback;
 
     } m_listener;
 
 };
 
-#endif //FORTE_BASESUBSCRIBER_H

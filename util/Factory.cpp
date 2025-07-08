@@ -62,10 +62,12 @@
 #include "forte_struct.h"
 #include "forte_array.h"
 
-#include "../../core/utils/parameterParser.h"
+// #include "../../core/utils/parameterParser.h"
 
 #include <filesystem>
 #include <fstream>
+
+#include "parameterParser.h"
 
 using namespace eprosima::fastdds::dds;
 using namespace eprosima::fastrtps::types;
@@ -75,23 +77,23 @@ using namespace eprosima::fastrtps::types;
 
 namespace forte::dds
 {
-    Factory& Factory::getInstance() 
+    Factory& Factory::getInstance()
     {
         static Factory instance;
-        if (!instance.initialized_) 
+        if (!instance.initialized_)
         {
             instance.loadProfilesFromDirectory("../profiles");
             instance.initialized_ = true;
         }
         return instance;
-    }   
+    }
 
-    void Factory::loadProfilesFromDirectory(const std::string& directoryPath) 
+    void Factory::loadProfilesFromDirectory(const std::string& directoryPath)
     {
         std::lock_guard<std::mutex> lock(mutex_);
-        for (const auto& entry : std::filesystem::directory_iterator(directoryPath)) 
+        for (const auto& entry : std::filesystem::directory_iterator(directoryPath))
         {
-            if (entry.is_regular_file() && entry.path().extension() == ".xml") 
+            if (entry.is_regular_file() && entry.path().extension() == ".xml")
             {
                 const std::string filePath = entry.path().string();
                 DomainParticipantFactory::get_instance()->load_XML_profiles_file(filePath);
@@ -99,21 +101,7 @@ namespace forte::dds
         }
     }
 
-    bool Factory::parseConfig(EntityConfig &config, const char *layer_params) 
-    {
-        CParameterParser parser(layer_params, ',', 2);
-        if (parser.parseParameters() != 2) 
-        {
-            return false;
-        }
-
-        config.topic = parser[TopicName];
-        config.profile = parser[ProfileName];
-
-        return true;
-    }
-
-    eprosima::fastdds::dds::DomainParticipant *Factory::create_domain_participant() 
+    eprosima::fastdds::dds::DomainParticipant *Factory::create_domain_participant()
     {
         DomainParticipantQos participant_qos;
         DomainParticipantFactory::get_instance()->get_participant_qos_from_profile(
@@ -127,20 +115,20 @@ namespace forte::dds
         return DomainParticipantFactory::get_instance()->create_participant(0, pqos);
     }
 
-    eprosima::fastdds::dds::Publisher *Factory::create_publisher(DomainParticipant* participant, EntityConfig& config) 
+    eprosima::fastdds::dds::Publisher *Factory::create_publisher(DomainParticipant* participant, std::string& profile)
     {
         PublisherQos qos;
-        if (participant->get_publisher_qos_from_profile(config.profile, qos) != ReturnCode_t::RETCODE_OK) 
+        if (participant->get_publisher_qos_from_profile(profile, qos) != ReturnCode_t::RETCODE_OK)
         {
             qos = PUBLISHER_QOS_DEFAULT;
         }
         return participant->create_publisher(qos);
     }
 
-    eprosima::fastdds::dds::Subscriber *Factory::create_subscriber(DomainParticipant* participant, EntityConfig& config) 
+    eprosima::fastdds::dds::Subscriber *Factory::create_subscriber(DomainParticipant* participant, std::string& profile)
     {
         SubscriberQos qos;
-        if (participant->get_subscriber_qos_from_profile(config.profile, qos) != ReturnCode_t::RETCODE_OK) 
+        if (participant->get_subscriber_qos_from_profile(profile, qos) != ReturnCode_t::RETCODE_OK)
         {
             SubscriberQos
             qos = SUBSCRIBER_QOS_DEFAULT;
@@ -148,41 +136,41 @@ namespace forte::dds
         return participant->create_subscriber(qos);
     }
 
-    eprosima::fastdds::dds::DataWriter *Factory::create_data_writer(Publisher* publisher, Topic* topic, EntityConfig& config) 
+    eprosima::fastdds::dds::DataWriter *Factory::create_data_writer(Publisher* publisher, Topic* topic, std::string& profile)
     {
         DataWriterQos qos;
-        if (publisher->get_datawriter_qos_from_profile(config.profile, qos) != ReturnCode_t::RETCODE_OK) 
+        if (publisher->get_datawriter_qos_from_profile(profile, qos) != ReturnCode_t::RETCODE_OK)
         {
             qos = DATAWRITER_QOS_DEFAULT;
         }
         return publisher->create_datawriter(topic, qos);
     }
 
-    eprosima::fastdds::dds::DataReader *Factory::create_data_reader(Subscriber* subscriber, Topic* topic, EntityConfig& config) 
+    eprosima::fastdds::dds::DataReader *Factory::create_data_reader(Subscriber* subscriber, Topic* topic, std::string& profile)
     {
         DataReaderQos qos;
-        if (subscriber->get_datareader_qos_from_profile(config.profile, qos) != ReturnCode_t::RETCODE_OK) 
+        if (subscriber->get_datareader_qos_from_profile(profile, qos) != ReturnCode_t::RETCODE_OK)
         {
             qos = DATAREADER_QOS_DEFAULT;
         }
         return subscriber->create_datareader(topic, qos);
     }
 
-    eprosima::fastdds::dds::Topic *Factory::create_topic(DomainParticipant* participant, EntityConfig& config, std::string topic_name, std::string type_name) 
+    eprosima::fastdds::dds::Topic *Factory::create_topic(DomainParticipant* participant, std::string& profile, std::string topic_name, std::string type_name)
     {
         TopicQos qos;
-        if (participant->get_topic_qos_from_profile(config.profile, qos) != ReturnCode_t::RETCODE_OK) 
+        if (participant->get_topic_qos_from_profile(profile, qos) != ReturnCode_t::RETCODE_OK)
         {
             qos = TOPIC_QOS_DEFAULT;
         }
         return participant->create_topic(topic_name, type_name, qos);
     }
 
-    DynamicData_ptr Factory::create_dynamic_data(DomainParticipant* participant, CIEC_ANY** pins, size_t size, std::string type_name) 
+    DynamicData_ptr Factory::create_dynamic_data(DomainParticipant* participant, CIEC_ANY** pins, size_t size, std::string type_name)
     {
         DynamicTypeBuilder_ptr struct_type_builder(DynamicTypeBuilderFactory::get_instance()->create_struct_builder());
 
-        for (size_t index = 0; index < size; index++) 
+        for (size_t index = 0; index < size; index++)
         {
             DynamicType_ptr type = Factory::createMemberType(pins[index]->unwrap().getDataTypeID());
             struct_type_builder->add_member(
@@ -205,7 +193,7 @@ namespace forte::dds
 
     DynamicType_ptr Factory::createMemberType(CIEC_ANY::EDataTypeID typeID)
     {
-        switch (typeID) 
+        switch (typeID)
         {
             // boolean
             case CIEC_ANY::e_BOOL:

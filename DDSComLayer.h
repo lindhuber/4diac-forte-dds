@@ -11,8 +11,7 @@
  *******************************************************************************/
 
 
-#ifndef DDSCOMLAYER_H_
-#define DDSCOMLAYER_H_
+#pragma once
 
 #include "comlayer.h"
 #include "../../core/datatypes/forte_string.h"
@@ -23,20 +22,21 @@
 
 using namespace forte::com_infra;
 
-class DDSComLayer: public forte::com_infra::CComLayer 
+class DDSComLayer final : public forte::com_infra::CComLayer
 {
 public:
 
     DDSComLayer(CComLayer* paUpperLayer, CBaseCommFB * paFB);
-    virtual ~DDSComLayer();
 
-    EComResponse sendData(void* paData, unsigned int paSize);
-    EComResponse recvData(const void *paData, unsigned int paSize);
-    EComResponse processInterrupt();
+    ~DDSComLayer() override;
+
+    EComResponse sendData(void* paData, unsigned int paSize) override;
+    EComResponse recvData(const void *paData, unsigned int paSize) override;
+    EComResponse processInterrupt() override;
 
 private:
-    EComResponse openConnection(char* paLayerParameter);
-    void closeConnection();
+    EComResponse openConnection(char* paLayerParameter) override;
+    void closeConnection() override;
 
     forte::dds::Subscriber* mp_sub;
     forte::dds::Publisher* mp_pub;
@@ -46,4 +46,3 @@ private:
     EComResponse mInterruptResp;
 };
 
-#endif

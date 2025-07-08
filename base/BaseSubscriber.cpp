@@ -23,6 +23,7 @@
 #include <fastrtps/types/DynamicDataFactory.h>
 #include <mutex>
 
+#include "DDSComLayer.h"
 #include "forte_any.h"
 #include "forte_bool.h"
 #include "forte_byte.h"
@@ -112,12 +113,12 @@ void BaseSubscriber::ParticipantListener::on_data_available(DataReader* reader) 
     if (reader->take_next_sample(mp_struct_subscriber->mp_data.get(), &info) == ReturnCode_t::RETCODE_OK) {
         if (info.instance_state == ALIVE_INSTANCE_STATE) {
             eprosima::fastrtps::types::DynamicDataHelper::print(mp_struct_subscriber->mp_data);
-            recvCallback(nullptr, 0);
+            recv_callback(nullptr, 0);
         }
     }
 }
 
-bool BaseSubscriber::apply(CIEC_ANY **pins, unsigned int size) {
+bool BaseSubscriber::apply(CIEC_ANY **pins, unsigned int size) const {
     for (int index = 0; index < size; ++index) {
         CIEC_ANY *anyVal = pins[index];
         switch (anyVal->unwrap().getDataTypeID())

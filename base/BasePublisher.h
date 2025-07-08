@@ -16,27 +16,25 @@
 #include <fastdds/dds/publisher/DataWriterListener.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include "forte_any.h"
-#include "util/EntityConfig.h"
 
 
 class BasePublisher {
 public:
-    BasePublisher(EntityConfig config, std::string topic_name)
+    BasePublisher(const std::string &topic, const std::string &profile)
             : mp_participant(nullptr)
             , mp_publisher(nullptr)
-            , m_config(config)
-            , m_typename(topic_name) {}
+            , m_profile(profile)
+            , m_typename(topic) {}
     virtual ~BasePublisher();
 
     bool init(eprosima::fastdds::dds::DomainParticipant* participant, CIEC_ANY** pins, size_t size);
-    bool publish(CIEC_ANY **mp_pins, size_t size);
+    bool publish(CIEC_ANY **mp_pins, size_t size) const;
 
     std::string m_typename;
+    std::string m_profile;
 
 private:
     static void setMemberData(eprosima::fastrtps::types::DynamicData_ptr data, CIEC_ANY *anyVal, int index);
-
-    EntityConfig m_config;
 
     eprosima::fastrtps::types::DynamicData_ptr m_data;
     eprosima::fastdds::dds::DomainParticipant* mp_participant;

@@ -10,20 +10,19 @@
  * Daniel Lindhuber - initial API and implementation and/or initial documentation
  *******************************************************************************/
 
-#ifndef FORTE_SUBSCRIBER_H
-#define FORTE_SUBSCRIBER_H
+#pragma once
 
 #include "base/BaseSubscriber.h"
 
 namespace forte::dds
 {
-    class Subscriber : public BaseSubscriber {
+    class Subscriber final : public BaseSubscriber {
     public:
-        Subscriber(EntityConfig config)
+        Subscriber(const std::string &topic, const std::string &profile, const callback_t &recv_callback)
             : mp_participant(nullptr)
-            , BaseSubscriber(config, config.topic)
+            , BaseSubscriber(topic, profile, recv_callback)
         {}
-        ~Subscriber();
+        ~Subscriber() override;
         bool init(CIEC_ANY **pins, size_t size);
 
     private:
@@ -31,4 +30,3 @@ namespace forte::dds
     };
 }
 
-#endif //FORTE_SUBSCRIBER_H

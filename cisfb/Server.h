@@ -10,22 +10,20 @@
  * Daniel Lindhuber - initial API and implementation and/or initial documentation
  *******************************************************************************/
 
-#ifndef FORTE_SERVER_H
-#define FORTE_SERVER_H
+#pragma once
 
 #include "base/BasePublisher.h"
 #include "base/BaseSubscriber.h"
-#include "util/EntityConfig.h"
 
 namespace forte::dds
 {
-    class Server : public BasePublisher, public BaseSubscriber {
+    class Server final : public BasePublisher, public BaseSubscriber {
     public:
-        Server(EntityConfig config)
-            : BasePublisher(config, config.topic + "_outgoing")
-            , BaseSubscriber(config, config.topic + "_incoming")
+        Server(const std::string &topic, const std::string &profile, const callback_t &recv_callback)
+            : BasePublisher(topic + "_outgoing", profile)
+            , BaseSubscriber(topic + "_incoming", profile, recv_callback)
         {}
-        ~Server();
+        ~Server() override;
         bool init(CIEC_ANY **input_pins, size_t input_size, CIEC_ANY **output_pins, size_t output_size);
 
     private:
@@ -33,4 +31,3 @@ namespace forte::dds
     };
 }
 
-#endif //FORTE_SERVER_H

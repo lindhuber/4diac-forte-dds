@@ -10,20 +10,19 @@
  * Daniel Lindhuber - initial API and implementation and/or initial documentation
  *******************************************************************************/
 
-#ifndef FORTE_PUBLISHER_H
-#define FORTE_PUBLISHER_H
+#pragma once
 
 #include "base/BasePublisher.h"
 
 namespace forte::dds
 {
-    class Publisher : public BasePublisher {
+    class Publisher final : public BasePublisher {
     public:
-        Publisher(EntityConfig config)
+        Publisher(const std::string &topic, const std::string &profile)
             : mp_participant(nullptr)
-            , BasePublisher(config, config.topic)
+            , BasePublisher(topic, profile)
         {}
-        ~Publisher();
+        ~Publisher() override;
         bool init(CIEC_ANY **pins, size_t size);
 
     private:
@@ -31,4 +30,3 @@ namespace forte::dds
     };
 }
 
-#endif //FORTE_PUBLISHER_H

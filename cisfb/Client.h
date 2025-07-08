@@ -10,22 +10,20 @@
  * Daniel Lindhuber - initial API and implementation and/or initial documentation
  *******************************************************************************/
 
-#ifndef FORTE_CLIENT_H
-#define FORTE_CLIENT_H
+#pragma once
 
 #include "base/BasePublisher.h"
 #include "base/BaseSubscriber.h"
-#include "util/EntityConfig.h"
 
 namespace forte::dds
 {
-    class Client : public BasePublisher, public BaseSubscriber {
+    class Client final : public BasePublisher, public BaseSubscriber {
     public:
-        Client(EntityConfig config)
-            : BasePublisher(config, config.topic + "_incoming")
-            , BaseSubscriber(config, config.topic + "_outgoing")
+        Client(const std::string &topic, const std::string &profile, const callback_t &recv_callback)
+            : BasePublisher(topic + "_incoming", profile)
+            , BaseSubscriber(topic + "_outgoing", profile, recv_callback)
         {}
-        ~Client();
+        ~Client() override;
         bool init(CIEC_ANY **input_pins, size_t input_size, CIEC_ANY **output_pins, size_t output_size);
 
     private:
@@ -33,4 +31,3 @@ namespace forte::dds
     };
 }
 
-#endif //FORTE_CLIENT_H

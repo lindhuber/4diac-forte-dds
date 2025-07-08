@@ -13,7 +13,6 @@
 #ifndef FORTE_DDSCONFIGPARSER_H
 #define FORTE_DDSCONFIGPARSER_H
 
-#include "EntityConfig.h"
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 
 #include <fastdds/dds/publisher/Publisher.hpp>
@@ -30,6 +29,8 @@
 #include <fastrtps/attributes/ParticipantAttributes.h>
 #include <fastrtps/attributes/PublisherAttributes.h>
 
+#include "forte_any.h"
+
 using namespace eprosima::fastdds::dds;
 using namespace eprosima::fastrtps::types;
 
@@ -39,15 +40,13 @@ namespace forte::dds
     {
     public:
         static DomainParticipant *create_domain_participant();
-        static Publisher *create_publisher(DomainParticipant* participant, EntityConfig& config);
-        static Subscriber *create_subscriber(DomainParticipant* participant, EntityConfig& config);
-        static DataWriter *create_data_writer(Publisher* publisher, Topic* topic, EntityConfig& config);
-        static DataReader *create_data_reader(Subscriber* subscriber, Topic* topic, EntityConfig& config);
-        static Topic *create_topic(DomainParticipant* participant, EntityConfig& config, std::string topic_name, std::string type_name);
+        static Publisher *create_publisher(DomainParticipant* participant, std::string& profile);
+        static Subscriber *create_subscriber(DomainParticipant* participant, std::string& profile);
+        static DataWriter *create_data_writer(Publisher* publisher, Topic* topic, std::string& profile);
+        static DataReader *create_data_reader(Subscriber* subscriber, Topic* topic, std::string& profile);
+        static Topic *create_topic(DomainParticipant* participant, std::string& profile, std::string topic_name, std::string type_name);
 
         static DynamicData_ptr create_dynamic_data(DomainParticipant *participant, CIEC_ANY **pins, size_t size, std::string type_name);
-
-        static bool parseConfig(EntityConfig &config, const char *layer_params);
 
     private:
         Factory() = default;
@@ -63,13 +62,6 @@ namespace forte::dds
         bool initialized_ = false;
 
         static DynamicType_ptr createMemberType(CIEC_ANY::EDataTypeID typeID);
-
-        static const size_t PARAMS_NUM = 2;
-        enum Parameters 
-        {
-            TopicName,
-            ProfileName
-        };
     };
 }
 

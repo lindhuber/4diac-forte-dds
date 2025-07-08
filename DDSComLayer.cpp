@@ -15,7 +15,8 @@
 #include "DDSHandler.h"
 #include "commfb.h"
 #include <functional>
-#include "util/EntityConfig.h"
+
+#include "parameterParser.h"
 #include "util/Factory.h"
 
 using namespace forte::com_infra;
@@ -35,50 +36,57 @@ DDSComLayer::~DDSComLayer() = default;
 EComResponse DDSComLayer::openConnection(char* paLayerParameter) 
 {
     EComResponse eRetVal = e_InitInvalidId;
+
     if (getBottomLayer() != nullptr || getTopLayer() != nullptr) 
     {
-        return eRetVal;
+        return e_InitInvalidId;
     }
 
-    EntityConfig config;
-    forte::dds::Factory::parseConfig(config, paLayerParameter);
-    config.recvCallback = std::bind(&DDSComLayer::recvData, this, std::placeholders::_1, std::placeholders::_2);
-
-    switch(getCommFB()->getComServiceType()) 
+    CParameterParser parser(paLayerParameter, ',', 2);
+    if (parser.parseParameters() != 2)
     {
-        case e_Publisher: 
+        return e_InitInvalidId;
+    }
+
+    std::string topic = parser[0];
+    std::string profile = parser[1];
+    auto recv_callback = std::bind(&DDSComLayer::recvData, this, std::placeholders::_1, std::placeholders::_2);
+
+    switch(getCommFB()->getComServiceType())
+    {
+        case e_Publisher:
         {
-            mp_pub = new forte::dds::Publisher(config);
-            if (mp_pub->init(getCommFB()->getSDs(), getCommFB()->getNumSD())) 
+            mp_pub = new forte::dds::Publisher(topic, profile);
+            if (mp_pub->init(getCommFB()->getSDs(), getCommFB()->getNumSD()))
             {
                 getExtEvHandler<DDSHandler>().registerLayer(this);
                 eRetVal = e_InitOk;
             }
             break;
         }
-        case e_Subscriber: 
+        case e_Subscriber:
         {
-            mp_sub = new forte::dds::Subscriber(config);
-            if (mp_sub->init(getCommFB()->getRDs(), getCommFB()->getNumRD())) 
+            mp_sub = new forte::dds::Subscriber(topic, profile, recv_callback);
+            if (mp_sub->init(getCommFB()->getRDs(), getCommFB()->getNumRD()))
             {
                 getExtEvHandler<DDSHandler>().registerLayer(this);
                 eRetVal = e_InitOk;
             }
             break;
         }
-        case e_Server: 
+        case e_Server:
         {
-            mp_server = new forte::dds::Server(config);
-            if (mp_server->init(getCommFB()->getSDs(), getCommFB()->getNumSD(), getCommFB()->getRDs(), getCommFB()->getNumRD())) 
+            mp_server = new forte::dds::Server(topic, profile, recv_callback);
+            if (mp_server->init(getCommFB()->getSDs(), getCommFB()->getNumSD(), getCommFB()->getRDs(), getCommFB()->getNumRD()))
             {
                 getExtEvHandler<DDSHandler>().registerLayer(this);
                 eRetVal = e_InitOk;
             }
             break;
         }
-        case e_Client: 
+        case e_Client:
         {
-            mp_client = new forte::dds::Client(config);
+            mp_client = new forte::dds::Client(topic, profile, recv_callback);
             if (mp_client->init(getCommFB()->getSDs(), getCommFB()->getNumSD(), getCommFB()->getRDs(), getCommFB()->getNumRD())) 
             {
                 getExtEvHandler<DDSHandler>().registerLayer(this);
