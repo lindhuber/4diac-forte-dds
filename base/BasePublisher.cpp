@@ -72,7 +72,8 @@ BasePublisher::~BasePublisher()
 bool BasePublisher::init(DomainParticipant* participant, CIEC_ANY** pins, size_t size) {
     mp_participant = participant;
 
-    mp_publisher = mp_participant->create_publisher(PUBLISHER_QOS_DEFAULT, nullptr);
+    mp_publisher = mp_participant->create_publisher_with_profile("publisher_" + m_profile);
+    // mp_publisher = mp_participant->create_publisher(PUBLISHER_QOS_DEFAULT, nullptr);
     if (mp_publisher == nullptr) {
         return false;
     }
@@ -87,7 +88,8 @@ bool BasePublisher::init(DomainParticipant* participant, CIEC_ANY** pins, size_t
         return false;
     }
 
-    mp_writer = mp_publisher->create_datawriter(mp_topic, DATAWRITER_QOS_DEFAULT, &m_listener);
+    mp_writer = mp_publisher->create_datawriter_with_profile(mp_topic, "datawriter_" + m_profile, &m_listener);
+    // mp_writer = mp_publisher->create_datawriter(mp_topic, DATAWRITER_QOS_DEFAULT, &m_listener);
     if (mp_writer == nullptr) {
         return false;
     }

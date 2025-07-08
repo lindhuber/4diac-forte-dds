@@ -20,7 +20,8 @@ namespace forte::dds
     class Server final : public BasePublisher, public BaseSubscriber {
     public:
         Server(const std::string &topic, const std::string &profile, const callback_t &recv_callback)
-            : BasePublisher(topic + "_outgoing", profile)
+            : m_profile(profile)
+            , BasePublisher(topic + "_outgoing", profile)
             , BaseSubscriber(topic + "_incoming", profile, recv_callback)
         {}
         ~Server() override;
@@ -28,6 +29,7 @@ namespace forte::dds
 
     private:
         eprosima::fastdds::dds::DomainParticipant *mp_participant;
+        std::string m_profile;
     };
 }
 

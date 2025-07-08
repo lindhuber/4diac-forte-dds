@@ -23,9 +23,8 @@ namespace forte::dds
     }
 
     bool Publisher::init(CIEC_ANY **pins, size_t size) {
-        eprosima::fastdds::dds::DomainParticipantQos pqos;
-        pqos.name("Participant_pub");
-        mp_participant = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->create_participant(0, pqos);
+        mp_participant = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()
+            ->create_participant_with_profile(0, "participant_" + m_profile);
         if (mp_participant == nullptr) {
             return false;
         }

@@ -24,8 +24,8 @@ namespace forte::dds
     }
 
     bool Subscriber::init(CIEC_ANY **pins, size_t size) {
-        // mp_participant = fordiac::dds::entities::create_domain_participant();
-        mp_participant = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->create_participant(0, PARTICIPANT_QOS_DEFAULT);
+        mp_participant = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()
+            ->create_participant_with_profile(0, "participant_" + m_profile);
         if (mp_participant == nullptr) {
             return false;
         }

@@ -20,7 +20,8 @@ namespace forte::dds
     class Client final : public BasePublisher, public BaseSubscriber {
     public:
         Client(const std::string &topic, const std::string &profile, const callback_t &recv_callback)
-            : BasePublisher(topic + "_incoming", profile)
+            : m_profile(profile)
+            , BasePublisher(topic + "_incoming", profile)
             , BaseSubscriber(topic + "_outgoing", profile, recv_callback)
         {}
         ~Client() override;
@@ -28,6 +29,7 @@ namespace forte::dds
 
     private:
         eprosima::fastdds::dds::DomainParticipant* mp_participant;
+        std::string m_profile;
     };
 }
 

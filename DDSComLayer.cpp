@@ -15,6 +15,7 @@
 #include "DDSHandler.h"
 #include "commfb.h"
 #include <functional>
+#include <dds/domain/DomainParticipantFactory.hpp>
 
 #include "parameterParser.h"
 #include "util/Factory.h"
@@ -42,14 +43,16 @@ EComResponse DDSComLayer::openConnection(char* paLayerParameter)
         return e_InitInvalidId;
     }
 
+    DomainParticipantFactory::get_instance()->load_XML_profiles_file("profiles/test.xml");
+
     CParameterParser parser(paLayerParameter, ',', 2);
     if (parser.parseParameters() != 2)
     {
         return e_InitInvalidId;
     }
 
-    std::string topic = parser[0];
-    std::string profile = parser[1];
+    const std::string topic = parser[0];
+    const std::string profile = parser[1];
     auto recv_callback = std::bind(&DDSComLayer::recvData, this, std::placeholders::_1, std::placeholders::_2);
 
     switch(getCommFB()->getComServiceType())

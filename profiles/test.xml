@@ -1,18 +1,46 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<dds xmlns="http://www.eprosima.com">
+<dds xmlns="http://www.eprosima.com/XMLSchemas/fastRTPS_Profiles">
     <profiles>
-        <topic profile_name="test">
-            <historyQos>
-                <kind>KEEP_LAST</kind>
-                <depth>5</depth>
-            </historyQos>
-            <resourceLimitsQos>
-                <max_samples>5</max_samples>
-                <max_instances>2</max_instances>
-                <max_samples_per_instance>1</max_samples_per_instance>
-                <allocated_samples>20</allocated_samples>
-                <extra_samples>10</extra_samples>
-            </resourceLimitsQos>
-        </topic>
+        <participant profile_name="participant_profile1">
+            <rtps>
+                <name>Participant_1</name>
+            </rtps>
+        </participant>
+
+        <publisher profile_name="publisher_profile1">
+            <qos>
+                <partition>
+                    <names>
+                        <name>PartitionA</name>
+                    </names>
+                </partition>
+            </qos>
+        </publisher>
+
+        <subscriber profile_name="subscriber_profile1">
+            <qos>
+                <partition>
+                    <names>
+                        <name>PartitionA</name>
+                    </names>
+                </partition>
+            </qos>
+        </subscriber>
+
+        <data_writer profile_name="datawriter_profile1">
+            <topic>
+                <historyQos>
+                    <kind>KEEP_LAST</kind>
+                </historyQos>
+            </topic>
+        </data_writer>
+
+        <data_reader profile_name="datareader_profile1">
+            <topic>
+                <historyQos>
+                    <kind>KEEP_LAST</kind>
+                </historyQos>
+            </topic>
+        </data_reader>
     </profiles>
 </dds>
+

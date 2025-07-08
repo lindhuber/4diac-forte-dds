@@ -23,10 +23,8 @@ namespace forte::dds
     }
 
     bool Server::init(CIEC_ANY **input_pins, size_t input_size, CIEC_ANY **output_pins, size_t output_size) {
-        eprosima::fastdds::dds::DomainParticipantQos pqos;
-        pqos.name("Participant_sub");
-
-        mp_participant = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->create_participant(0, pqos);
+        mp_participant = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()
+            ->create_participant_with_profile(0, "participant_" + m_profile);
         if (mp_participant == nullptr) {
             return false;
         }

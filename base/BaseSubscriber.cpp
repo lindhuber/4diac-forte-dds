@@ -77,10 +77,8 @@ bool BaseSubscriber::init(DomainParticipant* participant, CIEC_ANY** pins, size_
 
     // mp_participant->set_listener(&m_listener, StatusMask::data_available());
 
-    m_reader_qos = DATAREADER_QOS_DEFAULT;
-    m_reader_qos.reliability().kind = RELIABLE_RELIABILITY_QOS;
-
-    mp_subscriber = mp_participant->create_subscriber(SUBSCRIBER_QOS_DEFAULT, nullptr);
+    mp_subscriber = mp_participant->create_subscriber_with_profile("subscriber_" + m_profile);
+    // mp_subscriber = mp_participant->create_subscriber(SUBSCRIBER_QOS_DEFAULT, nullptr);
     if (mp_subscriber == nullptr) {
         return false;
     }
@@ -95,11 +93,16 @@ bool BaseSubscriber::init(DomainParticipant* participant, CIEC_ANY** pins, size_
         return false;
     }
 
-    mp_reader = mp_subscriber->create_datareader(
+    mp_reader = mp_subscriber->create_datareader_with_profile(
             mp_topic,
-            m_reader_qos,
+            "datareader_" + m_profile,
             &m_listener,
             StatusMask::data_available());
+    // mp_reader = mp_subscriber->create_datareader(
+    //         mp_topic,
+    //         m_reader_qos,
+    //         &m_listener,
+    //         StatusMask::data_available());
     if (mp_reader == nullptr) {
         return false;
     }
